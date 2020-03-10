@@ -1,22 +1,22 @@
 /*
 Program     : Room Impulse Response Generator
- 
+
 Description : Computes the response of an acoustic source to one or more
               microphones in a reverberant room using the image method [1,2].
- 
+
               [1] J.B. Allen and D.A. Berkley,
               Image method for efficiently simulating small-room acoustics,
               Journal Acoustic Society of America, 65(4), April 1979, p 943.
- 
+
               [2] P.M. Peterson,
               Simulating the response of multiple microphones to a single
               acoustic source in a reverberant room, Journal Acoustic
               Society of America, 80(5), November 1986.
- 
+
 Author      : dr.ir. E.A.P. Habets (ehabets@dereverberation.org)
- 
+
 Version     : 2.1.20141124
- 
+
 History     : 1.0.20030606 Initial version
               1.1.20040803 + Microphone directivity
                            + Improved phase accuracy [2]
@@ -29,7 +29,7 @@ History     : 1.0.20030606 Initial version
               1.7.20060531 + Minor improvements
               1.8.20080713 + Minor improvements
               1.9.20090822 + 3D microphone directivity control
-              2.0.20100920 + Calculation of the source-image position 
+              2.0.20100920 + Calculation of the source-image position
                              changed in the code and tutorial.
                              This ensures a proper response to reflections
                              in case a directional microphone is used.
@@ -37,19 +37,19 @@ History     : 1.0.20030606 Initial version
               2.1.20140721 + Fixed computation of alpha
               2.1.20141124 + The window and sinc are now both centered
                              around t=0
- 
+
 Copyright (C) 2003-2014 E.A.P. Habets, The Netherlands.
- 
+
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
- 
+
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -63,8 +63,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define ROUND(x) ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
 
-#ifndef M_PI 
-    #define M_PI 3.14159265358979323846 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
 #endif
 
 double sinc(double x)
@@ -84,7 +84,7 @@ double sim_microphone(double x, double y, double z, double* angle, char mtype)
         // Polar Pattern         rho
         // ---------------------------
         // Bidirectional         0
-        // Hypercardioid         0.25    
+        // Hypercardioid         0.25
         // Cardioid              0.5
         // Subcardioid           0.75
         // Omnidirectional       1
@@ -95,7 +95,7 @@ double sim_microphone(double x, double y, double z, double* angle, char mtype)
             rho = 0;
             break;
         case 'h':
-            rho = 0.25; 
+            rho = 0.25;
             break;
         case 'c':
             rho = 0.5;
@@ -104,13 +104,13 @@ double sim_microphone(double x, double y, double z, double* angle, char mtype)
             rho = 0.75;
             break;
         };
-                
+
         vartheta = acos(z/sqrt(pow(x,2)+pow(y,2)+pow(z,2)));
         varphi = atan2(y,x);
 
         gain = sin(M_PI/2-angle[1]) * sin(vartheta) * cos(angle[0]-varphi) + cos(M_PI/2-angle[1]) * cos(vartheta);
         gain = rho + (1-rho) * gain;
-                
+
         return gain;
     }
     else
@@ -233,8 +233,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
                              "specify the reflection coefficients or change the room parameters.");
             for (int i=0;i<6;i++)
                 beta[i] = sqrt(1-alfa);
-        } 
-        else 
+        }
+        else
         {
             for (int i=0;i<6;i++)
                 beta[i] = 0;
@@ -261,7 +261,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     {
         const double* orientation = mxGetPr(prhs[10]);
         if (mxGetN(prhs[10]) == 1)
-        {     
+        {
             angle[0] = orientation[0];
             angle[1] = 0;
         }
@@ -361,7 +361,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     double*      s = new double[3];
     double*      L = new double[3];
     double       Rm[3];
-    double       Rp_plus_Rm[3]; 
+    double       Rp_plus_Rm[3];
     double       refl[3];
     double       fdist,dist;
     double       gain;
@@ -442,7 +442,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         // 'Original' high-pass filter as proposed by Allen and Berkley.
         if (isHighPassFilter == 1)
         {
-            for (int idx = 0 ; idx < 3 ; idx++) {Y[idx] = 0;}            
+            for (int idx = 0 ; idx < 3 ; idx++) {Y[idx] = 0;}
             for (int idx = 0 ; idx < nSamples ; idx++)
             {
                 X0 = imp[idxMicrophone+nMicrophones*idx];
@@ -453,7 +453,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             }
         }
     }
-    
+
     if (nlhs > 1) {
         plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);
         double* beta_hat = mxGetPr(plhs[1]);
@@ -464,12 +464,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             beta_hat[0] = 0;
         }
     }
-    
+
     delete[] beta;
     delete[] microphone_type;
     delete[] Y;
-    delete[] LPI;            
+    delete[] LPI;
     delete[] r;
     delete[] s;
-    delete[] L;    
+    delete[] L;
 }
