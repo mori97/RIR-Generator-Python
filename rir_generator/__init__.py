@@ -1,0 +1,1 @@
+from .rir_generator import generate_rir
