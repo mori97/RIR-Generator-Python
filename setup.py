@@ -1,7 +1,8 @@
 from setuptools import setup, Extension
 
+
 ext_module = Extension('rir_generator.c_ext',
-                       sources=['rir_generator/c_ext/rir_generator_ext.cpp'])
+                       sources=['rir_generator/c_ext.cpp'])
 
 setup(name='rir_generator',
       version='0.1',
