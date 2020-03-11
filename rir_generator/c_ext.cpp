@@ -173,7 +173,7 @@ static PyObject* generateRIR(PyObject *self, PyObject *args)
 
     // Create output vector
     npy_intp dims[] = {nMicrophones, nSamples};
-    auto h = (PyArrayObject*) PyArray_ZEROS(2, dims, 12, 1);
+    auto h = (PyArrayObject*) PyArray_ZEROS(2, dims, 12, 0);
     double* imp = (double*) h->data;
 
     // Temporary variables and constants (high-pass filter)
@@ -209,10 +209,9 @@ static PyObject* generateRIR(PyObject *self, PyObject *args)
 
     for (int idxMicrophone = 0; idxMicrophone < nMicrophones ; idxMicrophone++)
     {
-        // [x_1 x_2 ... x_N y_1 y_2 ... y_N z_1 z_2 ... z_N]
-        r[0] = rr[idxMicrophone + 0*nMicrophones] / cTs;
-        r[1] = rr[idxMicrophone + 1*nMicrophones] / cTs;
-        r[2] = rr[idxMicrophone + 2*nMicrophones] / cTs;
+        r[0] = rr[3*idxMicrophone + 0] / cTs;
+        r[1] = rr[3*idxMicrophone + 1] / cTs;
+        r[2] = rr[3*idxMicrophone + 2] / cTs;
 
         n1 = (int) ceil(nSamples/(2*L[0]));
         n2 = (int) ceil(nSamples/(2*L[1]));
@@ -262,7 +261,7 @@ static PyObject* generateRIR(PyObject *self, PyObject *args)
                                         startPosition = (int) fdist-(Tw/2)+1;
                                         for (n = 0 ; n < Tw; n++)
                                             if (startPosition+n >= 0 && startPosition+n < nSamples)
-                                                imp[idxMicrophone + nMicrophones*(startPosition+n)] += gain * LPI[n];
+                                                imp[nSamples*idxMicrophone+startPosition+n] += gain * LPI[n];
                                     }
                                 }
                             }
@@ -278,11 +277,11 @@ static PyObject* generateRIR(PyObject *self, PyObject *args)
             for (int idx = 0 ; idx < 3 ; idx++) {Y[idx] = 0;}
             for (int idx = 0 ; idx < nSamples ; idx++)
             {
-                X0 = imp[idxMicrophone+nMicrophones*idx];
+                X0 = imp[nSamples * idxMicrophone + idx];
                 Y[2] = Y[1];
                 Y[1] = Y[0];
                 Y[0] = B1*Y[1] + B2*Y[2] + X0;
-                imp[idxMicrophone+nMicrophones*idx] = Y[0] + A1*Y[1] + R1*Y[2];
+                imp[nSamples*idxMicrophone+idx] = Y[0] + A1*Y[1] + R1*Y[2];
             }
         }
     }

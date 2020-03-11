@@ -50,7 +50,6 @@ def generate_rir(
         Option[float]: in case a reverberation time is specified as an input
             parameter the corresponding reflection coefficient is returned.
     """
-    r = numpy.asfortranarray(r)
     if isinstance(beta, float):
         beta = numpy.array(beta)
     if n_sample is None:
