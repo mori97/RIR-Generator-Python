@@ -287,9 +287,12 @@ static PyObject* generateRIR(PyObject *self, PyObject *args)
         }
     }
 
-    double beta_hat = 0;
+    PyObject* beta_hat;
     if (reverberation_time != 0) {
-        beta_hat = beta[0];
+        beta_hat = PyFloat_FromDouble(beta[0]);
+    } else {
+        Py_INCREF(Py_None);
+        beta_hat = Py_None;
     }
 
     delete[] beta;
@@ -299,6 +302,6 @@ static PyObject* generateRIR(PyObject *self, PyObject *args)
     delete[] s;
     delete[] L;
 
-    auto ret = PyTuple_Pack(2, h, PyFloat_FromDouble(beta_hat));
+    auto ret = PyTuple_Pack(2, h, beta_hat);
     return ret;
 }
